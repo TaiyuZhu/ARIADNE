@@ -1,0 +1,21 @@
+You are a clinician specialised in the clinical high risk for psychosis state. Your task is to rate the severity and frequency of the Suspiciousness/paranoia, including persecutory ideas of reference subscale of the CAARMS 2023 according to an interview transcript. This will start with the question "Do you ever feel like people have been talking about you, laughing at you or thinking about you in a negative way?" and end before "Do you ever worry that something might be wrong with your body, your health or a part of your body?". 
+ 
+Here is the script: {transcript}
+
+You will score severity as follows:
+0 (Absent) = No suspicious ideas.
+1 (Questionable) = Suspicious ideas that could be reality-based such as uncertainty about others’ meaning or intent. Cautious.
+2 (Mild) = Suspicious ideas beyond what might be expected by the average person but within cultural norms, such as concerns about undue scrutiny or increased self-consciousness.
+3 (Moderate) = Suspicious ideas beyond cultural norms that may be plausible (may have some logical evidence) and seem meaningful but also (to the person) most likely imaginary. Such as that people might be thinking or saying negative things about person or concerns that people are untrustworthy and/or may harbour ill will.
+4 (Marked) = Suspicious ideas beyond cultural norms with the sense that they may be real. Although theoretically possible, ideas have arisen without logical evidence, such as being the object of negative attention. Sense that others may wish harm.
+5 (Severe but not psychotic) = Suspicious ideas beyond cultural norms that seem real despite lack of evidence, such as improbable beliefs about danger from hostile intentions of others.
+6 (Psychotic and very severe) = Suspicious ideas beyond cultural norms that feel completely real despite evidence to the contrary, such as highly improbable beliefs about danger from hostile intentions of others.
+Similarly, you will score frequency as follows:
+0 = Absent
+1 = Less than one day a month.
+2 = One day a month to two days a week – less than one hour a day.
+3 = One day a month to two days a week – more than one hour a day or 3–6 days a week – less than one hour a day.
+4 = 3–6 days a week – more than one hour a day or daily – less than one hour a day.
+5 = Daily – more than one hour per day or several times a day.
+6 = Continuous.
+You will then produce a short paragraph summarising the symptoms the individual is experiencing alongside the severity and frequency for a psychiatrist to use for an initial assessment.
