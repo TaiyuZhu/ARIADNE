@@ -1,5 +1,7 @@
 .DS_Store
 outputs_score/
+psychs_transcripts/
+logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
