@@ -5,6 +5,7 @@ import json
 import re
 import time
 import argparse
+import pandas as pd
 from urllib.parse import urljoin
 from pathlib import Path
 
@@ -115,6 +116,37 @@ def chat(msg: str, model: str) -> str:
             print(f"Endpoint {path} failed: {e}")
     raise RuntimeError("Both API endpoints failed.")
 
+def parse_transcript_name(filename: str):
+    """
+    Extract subject ID, day, sessionfrom filenames like:
+      PrescientBM_BM13061_interviewAudioTranscript_psychs_day0001_session001_REDACTED.txt
+    Handles negative day numbers (e.g., day-117), and cleans model name (removes 'v2_' prefix).
+    """
+    # Extract subject ID (second underscore-separated token)
+    parts = filename.split("_")
+    subj = parts[1] if len(parts) > 1 else None
+
+    # Extract day (may include negative sign)
+    day_match = re.search(r"day-?\d+", filename)
+    if day_match:
+        # Extract the numeric value including sign
+        day_str = re.search(r"-?\d+", day_match.group(0)).group(0)
+        day = int(day_str)
+    else:
+        day = None
+        print(f"Unmatched day: {filename}")
+
+    # Extract session
+    session_match = re.search(r"session-?\d+", filename)
+    if session_match:
+        session_str = re.search(r"-?\d+", session_match.group(0)).group(0)
+        session = int(session_str)
+    else:
+        session = None
+        print(f"Unmatched session: {filename}")
+
+
+    return subj, day, session
 
 # -------------------------------
 # Main script
@@ -136,6 +168,12 @@ if __name__ == "__main__":
     transcript_files = [f for f in Path(TRANSCRIPT_PATH).glob("*.txt")
                         if "prompt" not in f.name and "assessment" not in f.name]
 
+    df_sev = pd.read_csv(OUTPUT_DIR/f'results/score_pred_Alejo_sev_{args.model}.csv')
+    df_sev["src_subject_id"] = df_sev["src_subject_id"].astype(str).str.strip()
+    df_sev["day"] = df_sev["day"].astype(float)
+    df_sev["session"] = df_sev["session"].astype(int)
+
+
     for transcript_file in transcript_files:
 
         output_file = OUTPUT_DIR / f"{transcript_file.stem}_assessment_{args.prompt}_{args.model}.txt"
@@ -144,12 +182,25 @@ if __name__ == "__main__":
         if output_file.exists():
             print(f"⏭️  Skipping {transcript_file.name} — result already exists.")
             continue
-
+        
         with open(transcript_file, "r", encoding="utf-8") as f:
             transcript = f.read()
+        subj, day, sess = parse_transcript_name(transcript_file.name)
 
-        prompt = prompt_template.format(transcript=transcript)
-        print(f"\n📄 Processing: {transcript_file.name} with model {args.model}...")
+        row = df_sev[
+            (df_sev["src_subject_id"] == subj)
+            & (df_sev["day"].astype(int) == int(day))
+            & (df_sev["session"].astype(int) == int(sess))
+        ]
+
+        if row.empty:
+            print(f"⚠️ No matching row found for {transcript_file.name}")
+            sev_score = None
+        else:
+            sev_score = float(row.iloc[0]["severity_pred"])            
+        
+        prompt = prompt_template.format(transcript=transcript,sev_score=sev_score)
+        print(f"\n📄 Processing: {transcript_file.name} with model {args.model} (sev={sev_score})...")
 
         success = False
         attempt = 0
@@ -172,7 +223,7 @@ if __name__ == "__main__":
 
         if not success:
             continue
-            
+
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(f"File: {transcript_file.name}\n{'='*50}\n{assessment}")
         print(f"✅ Saved: {output_file}")

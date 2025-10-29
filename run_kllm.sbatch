@@ -8,4 +8,5 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 
-python run_kllm.py --model qwen3 --prompt Alejo_sev
+# python -u run_kllm.py --model gpt-oss:20b --prompt Dom_v2
+python -u run_kllm_freq.py --model gpt-oss:20b --prompt Alejo_freq
